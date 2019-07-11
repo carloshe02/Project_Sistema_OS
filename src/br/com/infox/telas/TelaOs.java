@@ -20,6 +20,9 @@ public class TelaOs extends javax.swing.JInternalFrame {
     PreparedStatement pst = null;
     ResultSet rs = null;
 
+    // abaixo, crianado variavel para rádio botom, orçamento/Ordem de serviço
+    private String tipo;
+
     /**
      * Creates new form TelaOs
      */
@@ -50,6 +53,52 @@ public class TelaOs extends javax.swing.JInternalFrame {
     private void setar_campos() {
         int setar = tblClientes.getSelectedRow();
         txtCliId.setText(tblClientes.getModel().getValueAt(setar, 0).toString());
+    }
+
+    // metodo emitir os
+    private void emitir_os() {
+        String sql = "insert into tbos (tipo,situacao,equipamento,defeito,servico,tecnico,valor,idcli) values(?,?,?,?,?,?,?,?)";
+
+        try {
+            pst = conexao.prepareStatement(sql);
+            // setando os campos do formulario da TelaOs
+            pst.setString(1, tipo);
+            pst.setString(2, cboOsSit.getSelectedItem().toString());
+            pst.setString(3, txtOsEquip.getText());
+            pst.setString(4, txtOsDef.getText());
+            pst.setString(5, txtOsServ.getText());
+            pst.setString(6, txtOsTec.getText());
+            //o comando .replace subistitui a virgula por ponto(caracter por outro caracter)
+            pst.setString(7, txtOsValor.getText().replace(",","."));
+            pst.setString(8, txtCliId.getText());
+
+            // validando formulario como obrigatórios
+            if ((txtCliId.getText().isEmpty()) || (txtOsEquip.getText().isEmpty()) || (txtOsServ.getText().isEmpty()) || (txtOsTec.getText().isEmpty()) || (txtOsValor.getText().isEmpty())) {
+
+                JOptionPane.showMessageDialog(null, "Todos os campos são obrigatórios!");
+
+            } else {
+
+                int adicionado = pst.executeUpdate();
+                if (adicionado > 0) {
+
+                    JOptionPane.showMessageDialog(null, "Ordem de servicço gerada com sucesso!");
+
+                    // limpando campos
+                    txtOsEquip.setText(null);
+                    txtOsDef.setText(null);
+                    txtOsServ.setText(null);
+                    txtOsTec.setText(null);
+                    txtOsEquip.setText(null);
+                    txtOsValor.setText(null);
+
+                } // if adicionado
+
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
     }
 
     /**
@@ -104,6 +153,23 @@ public class TelaOs extends javax.swing.JInternalFrame {
         setMaximizable(true);
         setTitle("Ordem de Serviços");
         setPreferredSize(new java.awt.Dimension(762, 603));
+        addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
+            public void internalFrameOpened(javax.swing.event.InternalFrameEvent evt) {
+                formInternalFrameOpened(evt);
+            }
+            public void internalFrameClosing(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameIconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeiconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent evt) {
+            }
+        });
 
         jPanel1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
@@ -122,10 +188,20 @@ public class TelaOs extends javax.swing.JInternalFrame {
         buttonGroup1.add(rbtOrc);
         rbtOrc.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         rbtOrc.setText("Orçamento");
+        rbtOrc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rbtOrcActionPerformed(evt);
+            }
+        });
 
         buttonGroup1.add(rbtOs);
         rbtOs.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         rbtOs.setText("Ordem de Serviço");
+        rbtOs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rbtOsActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -216,7 +292,7 @@ public class TelaOs extends javax.swing.JInternalFrame {
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtCliId, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 18, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -254,10 +330,16 @@ public class TelaOs extends javax.swing.JInternalFrame {
 
         txtOsServ.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
+        txtOsValor.setText("0");
         txtOsValor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         btnOsAdicionar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icones/Adicionar-os.png"))); // NOI18N
         btnOsAdicionar.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnOsAdicionar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOsAdicionarActionPerformed(evt);
+            }
+        });
 
         btnOsAlterar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icones/Alterar-os.png"))); // NOI18N
         btnOsAlterar.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -406,10 +488,10 @@ public class TelaOs extends javax.swing.JInternalFrame {
                     .addComponent(jLabel13)
                     .addComponent(jLabel14)
                     .addComponent(jLabel15))
-                .addContainerGap(34, Short.MAX_VALUE))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
 
-        setBounds(0, 0, 744, 600);
+        setBounds(0, 0, 762, 603);
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtCliPesquisarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCliPesquisarKeyReleased
@@ -421,6 +503,28 @@ public class TelaOs extends javax.swing.JInternalFrame {
         // chamando o metodo setar campos
         setar_campos();
     }//GEN-LAST:event_tblClientesMouseClicked
+
+    private void rbtOrcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtOrcActionPerformed
+        // Atribuindo texto a variavel tipo selecionada
+        tipo = "Orçamento";
+    }//GEN-LAST:event_rbtOrcActionPerformed
+
+    private void rbtOsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtOsActionPerformed
+        // atribuindo texto a variável tipo
+        tipo = "O.S";
+    }//GEN-LAST:event_rbtOsActionPerformed
+
+    private void formInternalFrameOpened(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameOpened
+        // evento internal frame opened, chamando um comando quando o frame interno inicia / ao abrir o form marca um radio botom, no caso: orçamento
+        rbtOrc.setSelected(true);
+        //preenchendo o campo 
+        tipo="Orçamento";
+    }//GEN-LAST:event_formInternalFrameOpened
+
+    private void btnOsAdicionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOsAdicionarActionPerformed
+        // chamando o metodo emitir os
+        emitir_os();
+    }//GEN-LAST:event_btnOsAdicionarActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
