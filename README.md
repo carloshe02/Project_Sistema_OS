@@ -5,7 +5,7 @@
 
 ## Tecnologias
 
-- JAVA, SQL, (netebeans, mysql, phpMyadmin)
+- JAVA, SQL, PHP, SQL (netebeans, mysql, phpMyadmin)
 
 
 ## Descrição
